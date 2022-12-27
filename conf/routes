@@ -6,16 +6,16 @@
 # An example controller showing a sample home page
 
 #Game Pages
-GET     /                               controllers.HomeController.index()
-GET     /gamesListing                   controllers.HomeController.gamesListing()
-GET     /games/:gameId                  controllers.HomeController.gamePlayPage(gameId:Int)
+GET           /                                        controllers.HomeController.index()
+GET           /gamesListing                            controllers.HomeController.gamesListing()
+GET           /games/:gameId                           controllers.HomeController.gamePlayPage(gameId:Int)
 
 # API routes
-GET     /api/users                          controllers.HomeController.users(all: Boolean ?= false)
-POST    /api/users                          controllers.HomeController.saveUser()
-GET     /api/generate                       controllers.HomeController.generateScripts()
-GET     /api/games                          controllers.HomeController.getGames()
-POST    /api/games                          controllers.HomeController.saveGame()
+GET           /api/users                               controllers.HomeController.users(all: Boolean ?= false)
+POST          /api/users                               controllers.HomeController.saveUser()
+GET           /api/generate                            controllers.HomeController.generateScripts()
+GET           /api/games                               controllers.HomeController.getGames()
+POST          /api/games                               controllers.HomeController.saveGame()
  ###
  #  summary: Initialize Game with random eggs
  #  tags:
@@ -26,13 +26,14 @@ POST    /api/games                          controllers.HomeController.saveGame(
  #      schema:
  #        type: string
  ###
-GET     /api/games/:gameId/initialize       controllers.HomeController.initializeGame(gameId:Int)
-DELETE  /api/games/:gameId/deleteProgress   controllers.HomeController.deleteGameProgress(gameId:Int)
-POST    /api/login                          controllers.HomeController.login()
-POST    /api/upvote/:mappingId              controllers.HomeController.upvote(mappingId: Int)
+GET           /api/games/:gameId/initialize            controllers.HomeController.initializeGame(gameId:Int)
+DELETE        /api/games/:gameId/deleteProgress        controllers.HomeController.deleteGameProgress(gameId:Int)
 +nocsrf
-POST    /api/games/:gameId/reveal/:pos       controllers.HomeController.reveal(gameId:Int, pos:Int)
-
+POST          /api/validateLogin                       controllers.HomeController.validateLogin()
+POST          /api/upvote/:mappingId                   controllers.HomeController.upvote(mappingId: Int)
++nocsrf
+POST          /api/games/:gameId/reveal/:pos           controllers.HomeController.reveal(gameId:Int, pos:Int)
+GET           /login                                   controllers.HomeController.loginForm()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET           /assets/*file                            controllers.Assets.versioned(path="/public", file: Asset)

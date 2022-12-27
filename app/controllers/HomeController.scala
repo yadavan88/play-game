@@ -6,6 +6,8 @@ import play.api.mvc._
 import dao._
 import dao.JsonImplicits._
 import models._
+import play.api.data.Form
+import play.api.data.Forms.{mapping, text}
 import play.api.libs.json.Json
 import play.api.libs.streams.Accumulator
 import play.twirl.api.Html
@@ -14,21 +16,22 @@ import services._
 import scala.concurrent.Future
 
 /** This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
+  * application's home page.
+  */
 @Singleton
-class HomeController @Inject()(
-                                val controllerComponents: ControllerComponents,
-                                val userDao: UserDAO,
-                                generator: ScriptGenerator,
-                                gameService: GameService
-                              ) extends BaseController {
+class HomeController @Inject() (
+    val controllerComponents: ControllerComponents,
+    val userDao: UserDAO,
+    generator: ScriptGenerator,
+    gameService: GameService
+) extends BaseController
+    with play.api.i18n.I18nSupport {
 
   /** Create an Action to render an HTML page.
-   *
-   * The configuration in the `routes` file means that this method will be
-   * called when the application receives a `GET` request with a path of `/`.
-   */
+    *
+    * The configuration in the `routes` file means that this method will be
+    * called when the application receives a `GET` request with a path of `/`.
+    */
   implicit val ec: scala.concurrent.ExecutionContext =
     scala.concurrent.ExecutionContext.global
 
@@ -37,13 +40,15 @@ class HomeController @Inject()(
   }
 
   def gamesListing() = Action.async { _ =>
-    gameService.getAllGames().map(games => Ok(views.html.gameslist(games.toList)))
+    gameService
+      .getAllGames()
+      .map(games => Ok(views.html.gameslist(games.toList)))
   }
 
   def gamePlayPage(gameId: Int) = Action.async { _ =>
     gameService.getGame(gameId).map {
       case Some(game) => Ok(views.html.gameplay(game))
-      case None => BadRequest(Html("<h3>Invalid Game Id passed!</h3>"))
+      case None       => BadRequest(Html("<h3>Invalid Game Id passed!</h3>"))
     }
   }
 
@@ -87,53 +92,64 @@ class HomeController @Inject()(
     Ok("Generated scripts")
   }
 
-  ///*  def upvote(mappingId: Int) = Action.async { implicit request =>
-  //    Security.WithAuthentication(req => UserSession.getUserFromSession(req.session.get(SESSION_KEY))) { _ =>
-  //      gameService.upvote(mappingId).map(_ => Ok("Upvoted successfully"))
-  //    }
-  //  }*/
-
-  def authenticated(action: User => EssentialAction): EssentialAction = {
+  private def authenticated(
+      action: User => EssentialAction
+  ): EssentialAction = {
     EssentialAction { request =>
       println("user check... ")
-      val userOpt = UserSession.getUserFromSession(request.headers.get(SESSION_KEY))
+      val userOpt =
+        UserSessionHandler.getUserFromSession(request.headers.get(SESSION_KEY))
       println(request.headers)
       userOpt match {
         case Some(user) => action(user)(request)
-        case None => Accumulator.done(Forbidden("Invalid apiKey"))
+        case None       => Accumulator.done(Forbidden("Invalid apiKey"))
       }
     }
   }
 
-  def withAuth[T](thunk: => Future[Result])(implicit request: Request[AnyContent]) = {
-    val user = UserSession.getUserFromSession(request.headers.get(SESSION_KEY))
-    user.map(_ => thunk).getOrElse(Future.successful(Forbidden("Invalid session key")))
+  def withAuth[T](
+      thunk: => Future[Result]
+  )(implicit request: Request[AnyContent]) = {
+    val user =
+      UserSessionHandler.getUserFromSession(request.headers.get(SESSION_KEY))
+    user
+      .map(_ => thunk)
+      .getOrElse(Future.successful(Forbidden("Invalid session key")))
   }
 
-  def upvote(mappingId: Int) = Action.async { implicit request =>
-    withAuth {
-      gameService.upvote(mappingId).map(_ => Ok("Upvoted successfully"))
+  def upvote(mappingId: Int) =
+    authenticated { user =>
+      Action.async { implicit request =>
+        gameService.upvote(mappingId).map(_ => Ok("Upvoted successfully"))
+      }
     }
-  }
 
   def reveal(gameId: Int, pos: Int) = {
     println("Inside the reveal method...... ")
     authenticated { user =>
       Action.async { implicit request =>
-        gameService.reveal(gameId, pos, user.userId).map(res => Ok(Json.toJson(res)))
+        gameService
+          .reveal(gameId, pos, user.userId)
+          .map(res => Ok(Json.toJson(res)))
       }
     }
   }
 
   final val SESSION_KEY = "sessionKey"
 
-  def login() = Action.async { implicit request =>
+  def loginForm() = Action { implicit request =>
+    Ok(views.html.loginform(LoginForm.form))
+  }
+
+  def validateLogin() = Action.async { implicit request =>
     println("before trying to login....")
-    val cred = request.body.asJson.get.as[Credentials]
+    val cred = LoginForm.form.bindFromRequest().get
+    // val cred = request.body.asJson.get.as[Credentials]
     userDao.validateCredential(cred).map { user =>
       if (user.isDefined) {
-        val sessionKey = UserSession.createSession(user.get)
-        Ok(views.html.afterlogin(user.get)).withHeaders(SESSION_KEY -> sessionKey)
+        val sessionKey = UserSessionHandler.createSession(user.get)
+        Ok(views.html.afterlogin(user.get))
+          .withHeaders(SESSION_KEY -> sessionKey)
       } else {
         Unauthorized("Invalid credentials!")
       }
@@ -147,3 +163,12 @@ class HomeController @Inject()(
   }
 }
 //https://pedrorijo.com/blog/scala-play-auth/
+
+object LoginForm {
+  val form = Form(
+    mapping(
+      "username" -> text,
+      "password" -> text
+    )(Credentials.apply)(Credentials.unapply)
+  )
+}
