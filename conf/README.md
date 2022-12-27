@@ -5,4 +5,4 @@ Simple game written while exploring play framework
 
 ## Pre-requirements
 - Install docker
-- Start postgres container by using `docker compose up` within this repository
+- Start postgres container by using `docker compose up` within `conf` dir of this repository

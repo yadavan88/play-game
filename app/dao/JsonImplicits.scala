@@ -1,7 +1,7 @@
 package dao
 
 import play.api.libs.json.Json
-import services.{Credentials, RevealResponse}
+import models._
 
 object JsonImplicits {
   implicit val userFormat = Json.format[User]

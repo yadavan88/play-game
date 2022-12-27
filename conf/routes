@@ -16,6 +16,16 @@ POST    /api/users                          controllers.HomeController.saveUser(
 GET     /api/generate                       controllers.HomeController.generateScripts()
 GET     /api/games                          controllers.HomeController.getGames()
 POST    /api/games                          controllers.HomeController.saveGame()
+ ###
+ #  summary: Initialize Game with random eggs
+ #  tags:
+ #    - Game
+ #  responses:
+ #    200:
+ #      description: success
+ #      schema:
+ #        type: string
+ ###
 GET     /api/games/:gameId/initialize       controllers.HomeController.initializeGame(gameId:Int)
 DELETE  /api/games/:gameId/deleteProgress   controllers.HomeController.deleteGameProgress(gameId:Int)
 POST    /api/login                          controllers.HomeController.login()

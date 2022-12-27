@@ -1,21 +1,21 @@
 package services
 
 import javax.inject.Inject
-import dao.{Game, GameDAO, GameEggMapping, GameEggMappingDAO, User, UserDAO}
+import dao.{GameDAO, GameEggMappingDAO, UserDAO}
+import models._
+import models.{Game, GameEggMapping, User}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import scala.util.Random
 
-case class Credentials(username: String, password: String)
-
-class GameService @Inject()(
-                             val gameDao: GameDAO,
-                             gameEggMappingDAO: GameEggMappingDAO,
-                             userDAO: UserDAO
-                           )(implicit
-                             executionContext: ExecutionContext
-                           ) {
+class GameService @Inject() (
+    val gameDao: GameDAO,
+    gameEggMappingDAO: GameEggMappingDAO,
+    userDAO: UserDAO
+)(implicit
+    executionContext: ExecutionContext
+) {
 
   private final val MAX_NO_OF_EGGS = 15
 
@@ -71,18 +71,24 @@ class GameService @Inject()(
       eggs <- gameEggMappingDAO.getAllEggs(gameId)
       position = eggs.find(_.eggPosition == pos)
       user <- userDAO.getUser(userId)
-      response <- if(position.isEmpty) {
-        Future.failed(new Exception("Invalid Position, bad luck"))
-      } else if (position.flatMap(_.userId).isDefined) {
-        // Already owned by a user
-        Future.successful(
-          RevealResponse(true, position.flatMap(_.message), user, position.get.upvotes)
-        )
-      } else {
-        gameEggMappingDAO.claim(gameId, pos, userId).map { _ =>
-          RevealResponse(false, None, user, 0)
+      response <-
+        if (position.isEmpty) {
+          Future.failed(new Exception("Invalid Position, bad luck"))
+        } else if (position.flatMap(_.userId).isDefined) {
+          // Already owned by a user
+          Future.successful(
+            RevealResponse(
+              true,
+              position.flatMap(_.message),
+              user,
+              position.get.upvotes
+            )
+          )
+        } else {
+          gameEggMappingDAO.claim(gameId, pos, userId).map { _ =>
+            RevealResponse(false, None, user, 0)
+          }
         }
-      }
     } yield response
   }
 
@@ -91,5 +97,3 @@ class GameService @Inject()(
   }
 
 }
-
-final case class RevealResponse(alreadyClaimed: Boolean, message: Option[String], user: Option[User], upvotes: Int)

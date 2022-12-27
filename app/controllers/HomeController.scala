@@ -4,8 +4,8 @@ import javax.inject._
 import play.api._
 import play.api.mvc._
 import dao._
-import dao.User
 import dao.JsonImplicits._
+import models._
 import play.api.libs.json.Json
 import play.api.libs.streams.Accumulator
 import play.twirl.api.Html

@@ -1,15 +1,18 @@
 package dao
 
+import models.Game
+
 import javax.inject.Inject
 import slick.basic.DatabaseConfig
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfigProvider
+
 import scala.concurrent.ExecutionContext
 import slick.jdbc.JdbcProfile
+
 import scala.concurrent.Future
 import play.api.libs.json._
 
-case class Game(gameId: Int, name: String)
 
 class GameDAO @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider

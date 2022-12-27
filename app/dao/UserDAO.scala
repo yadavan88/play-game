@@ -1,21 +1,17 @@
 package dao
 
+import models.{Credentials, User}
+
 import javax.inject.Inject
 import slick.basic.DatabaseConfig
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfigProvider
+
 import scala.concurrent.ExecutionContext
 import slick.jdbc.JdbcProfile
+
 import scala.concurrent.Future
 import play.api.libs.json._
-import services.Credentials
-
-case class User(
-    userId: Int,
-    username: String,
-    password: String,
-    active: Boolean = true
-)
 
 class UserDAO @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider
@@ -40,7 +36,7 @@ class UserDAO @Inject() (
   }
 
   def validateCredential(credential: Credentials): Future[Option[User]] = {
-    val query = userTable.filter{ u =>
+    val query = userTable.filter { u =>
       u.name === credential.username && u.pwd === credential.password
     }
     db.run(query.result.headOption)

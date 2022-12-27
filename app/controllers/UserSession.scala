@@ -1,5 +1,5 @@
 package controllers
-import dao.User
+import models.User
 
 import java.util.UUID
 import scala.collection.mutable.Map
