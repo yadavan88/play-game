@@ -1,7 +1,7 @@
 function generateGrid(gameId) {
     console.log("Inside js method... ")
     let tbl = document.getElementById("card_holder")
-    for(let i = 1; i < 11; i++) {
+    for(let i = 0; i < 25; i++) {
         let cell = document.createElement("div");
         cell.id = "row-"+i;
         cell.className = "card";

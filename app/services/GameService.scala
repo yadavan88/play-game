@@ -17,7 +17,7 @@ class GameService @Inject() (
     executionContext: ExecutionContext
 ) {
 
-  private final val MAX_NO_OF_EGGS = 15
+  private final val MAX_NO_OF_EGGS = 6
 
   def getAllGames(): Future[Seq[Game]] = gameDao.getAllGames()
 
@@ -58,7 +58,7 @@ class GameService @Inject() (
 
   private def generateEggPositions: Set[Int] = {
     // Adding +5 to reduce the chance of duplicate numbers causing the egg count to fall low
-    val random = Set.fill(MAX_NO_OF_EGGS + 5)(Random.nextInt(100))
+    val random = Set.fill(MAX_NO_OF_EGGS + 5)(Random.nextInt(25))
     random.take(MAX_NO_OF_EGGS)
   }
 

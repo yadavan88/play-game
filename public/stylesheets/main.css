@@ -6,7 +6,7 @@
 .cards {
   display: grid;
   width: 630px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   grid-gap: 15px;
 }
 
@@ -17,5 +17,5 @@
   align-items: center;
   background-color: dodgerblue;
   color: white;
-  height: 150px;
+  height: 100px;
 }
