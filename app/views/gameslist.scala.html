@@ -1,0 +1,8 @@
+@(games: List[dao.Game])
+
+<h1>Games List</h1>
+<ul>
+  @for(game <- games) {
+  <li><a href = "/games/@game.gameId">@game.name</a></li>
+  }
+</ul>
