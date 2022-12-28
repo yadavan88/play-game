@@ -73,11 +73,12 @@ class HomeController @Inject() (
     gameService.createGame(game).map(res => Ok("New Game Created"))
   }
 
-  def initializeGame(gameId: Int) = Action.async {
-    implicit request: Request[AnyContent] =>
+  def initializeGame(gameId: Int) = authenticated { user =>
+    Action.async { implicit request: Request[AnyContent] =>
       gameService
         .initializeGame(gameId)
         .map(_ => Ok("Initialized game: " + gameId))
+    }
   }
 
   def deleteGameProgress(gameId: Int) = Action.async {
@@ -96,9 +97,11 @@ class HomeController @Inject() (
       action: User => EssentialAction
   ): EssentialAction = {
     EssentialAction { request =>
-      println("user check... ")
+      val key = request.cookies.get(SESSION_KEY).map(_.value)
+      println("user check... " + key)
+
       val userOpt =
-        UserSessionHandler.getUserFromSession(request.headers.get(SESSION_KEY))
+        UserSessionHandler.getUserFromSession(key)
       println(request.headers)
       userOpt match {
         case Some(user) => action(user)(request)
@@ -158,15 +161,14 @@ class HomeController @Inject() (
             if (user.isDefined) {
               val sessionKey = UserSessionHandler.createSession(user.get)
               Ok(views.html.afterlogin(user.get))
-                .withHeaders(SESSION_KEY -> sessionKey)
+                // .withHeaders(SESSION_KEY -> sessionKey)
+                .withCookies(Cookie(SESSION_KEY, sessionKey))
             } else {
-              Unauthorized("Invalid credentials!")
+              Unauthorized(views.html.loginform(LoginForm.form))
             }
           }
         }
       )
-  // val cred = request.body.asJson.get.as[Credentials]
-
   }
 
   def findEgg() = {

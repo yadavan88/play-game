@@ -41,9 +41,10 @@ function toggle(pos, gameId) {
       });
       const res = await response; //extract JSON from the http response
         let el = document.getElementById("err_msg")
-        let value = await res.json()
-        console.log(value)
+
+
       if(res.status === 200) {
+          let value = await res.json()
           if(value.alreadyClaimed) {
               el.innerHTML = "Found an egg, but it is already claimed by "+value.user.username
               el.style.color = 'Tomato'

@@ -1,4 +1,4 @@
-@(user: models.User)
-@main("Welcome to Play") {
-  <h1>Hello @user.username , You have logged in successfully!</h1>
-}
+@(user: models.User)(implicit messages: Messages)
+
+<h1>Hello @user.username , You have logged in successfully!</h1>
+
