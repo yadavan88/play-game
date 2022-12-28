@@ -6,7 +6,7 @@
 # An example controller showing a sample home page
 
 #Game Pages
-GET           /                                        controllers.HomeController.index()
+GET           /                                        controllers.HomeController.loginForm()
 GET           /gamesListing                            controllers.HomeController.gamesListing()
 GET           /games/:gameId                           controllers.HomeController.gamePlayPage(gameId:Int)
 

@@ -1,5 +1,6 @@
 package dao
 
+import models.Exceptions.DuplicateUsernameException
 import models.{Credentials, User}
 
 import javax.inject.Inject
@@ -22,8 +23,22 @@ class UserDAO @Inject() (
   import profile.api._
   private val userTable = TableQuery[UserTable]
 
-  def saveUser(user: User): Future[Boolean] =
-    db.run(userTable += user).map(_ => true)
+  def saveUser(user: User): Future[Boolean] = {
+    for {
+      users <- getUsers(true)
+      res <-
+        if (users.exists(_.username == user.username)) {
+          Future.failed(
+            DuplicateUsernameException(
+              s"Username `${user.username}` is already taken!"
+            )
+          )
+        } else {
+          db.run(userTable += user).map(_ => true)
+        }
+    } yield res
+
+  }
 
   def getUsers(all: Boolean): Future[Seq[User]] = {
     val query =

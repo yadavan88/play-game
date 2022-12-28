@@ -5,6 +5,7 @@ import play.api._
 import play.api.mvc._
 import dao._
 import dao.JsonImplicits._
+import models.Exceptions.DuplicateUsernameException
 import models._
 import play.api.data.Form
 import play.api.data.Forms.{boolean, mapping, nonEmptyText, number, text}
@@ -56,7 +57,16 @@ class HomeController @Inject() (
 
   def saveUser() = Action.async { implicit request: Request[AnyContent] =>
     val user: User = request.body.asJson.get.as[User]
-    userDao.saveUser(user).map(res => Ok("Saved"))
+    userDao
+      .saveUser(user)
+      .map(res => Redirect(routes.HomeController.loginForm()))
+      .recover {
+        case dup: DuplicateUsernameException =>
+          Conflict(dup.message)
+        case ex =>
+          ex.printStackTrace()
+          InternalServerError("Something went wrong, " + ex.getMessage)
+      }
   }
 
   def users(all: Boolean) = Action.async {
@@ -110,16 +120,6 @@ class HomeController @Inject() (
     }
   }
 
-  def withAuth[T](
-      thunk: => Future[Result]
-  )(implicit request: Request[AnyContent]) = {
-    val user =
-      UserSessionHandler.getUserFromSession(request.headers.get(SESSION_KEY))
-    user
-      .map(_ => thunk)
-      .getOrElse(Future.successful(Forbidden("Invalid session key")))
-  }
-
   def upvote(mappingId: Int) =
     authenticated { user =>
       Action.async { implicit request =>
@@ -128,7 +128,6 @@ class HomeController @Inject() (
     }
 
   def reveal(gameId: Int, pos: Int) = {
-    println("Inside the reveal method...... ")
     authenticated { user =>
       Action.async { implicit request =>
         gameService
@@ -160,7 +159,7 @@ class HomeController @Inject() (
           userDao.validateCredential(u).map { user =>
             if (user.isDefined) {
               val sessionKey = UserSessionHandler.createSession(user.get)
-              Ok(views.html.afterlogin(user.get))
+              Ok(views.html.index())
                 // .withHeaders(SESSION_KEY -> sessionKey)
                 .withCookies(Cookie(SESSION_KEY, sessionKey))
             } else {

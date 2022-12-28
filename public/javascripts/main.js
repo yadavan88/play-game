@@ -94,7 +94,10 @@ function createUser() {
         if(res.status === 200) {
             lbl.style.color = 'green'
             lbl.innerHTML = "Successfully saved user"
-        } else {
+        } else if(res.status === 409) {
+            lbl.style.color = 'red'
+            lbl.innerHTML = await res.text()
+        }else {
             lbl.style.color = 'red'
             lbl.innerHTML = "Failed to save, contact administrator for more details"
         }

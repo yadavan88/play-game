@@ -24,3 +24,8 @@ final case class RevealResponse(
                                  user: Option[User],
                                  upvotes: Int
                                )
+
+
+object Exceptions {
+  final case class DuplicateUsernameException(message: String) extends Exception
+}
