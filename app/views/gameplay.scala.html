@@ -1,27 +1,33 @@
-@(game: models.Game)
-
+@(gameInfo: models.GameInfo)(implicit flash: Flash)
+@game = @{gameInfo.game}
 <h1>Welcome to "@game.name" </h1>
 <head>
-  <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
-  <link rel="stylesheet" href="/assets/stylesheets/main.css">
+    <script src="@routes.Assets.versioned("javascripts/game.js")" type="text/javascript"></script>
+    <link rel="stylesheet" href="/assets/stylesheets/main.css">
 </head>
 <body>
-  <button id = "init_game" onclick="initGame(@game.gameId);return false">Initialize Game</button>
-  <br/>
-  <br/>
-  <button id = "gen" onclick="generateGrid(@game.gameId);return false">Start Game</button>
+    <div>
+        @if(gameInfo.initialized) {
+            <button id = "delete_progress" onclick="deleteProgress(@game.gameId);
+            return false">Delete Progress</button>
+        } else {
+            <button id = "init_game" onclick="initGame(@game.gameId);
+            return false">Initialize Game</button>
+        }
 
-  <br/>
-  <br/>
-  <br/>
-<div>
-  <label id="err_msg"></label>
-</div>
-  <br/>
+    </div>
+    <div style="padding-top: 20px">
+        <button id = "gen" onclick="generateGrid(@game.gameId);
+        return false">Play Game</button>
+    </div>
+    <div>
+        <label id="err_msg"></label>
+    </div>
+    <br/>
 
-<div class="container">
-  <div class="cards" id="card_holder">
+    <div class="container">
+        <div class="cards" id="card_holder">
   </div>
-</div>
+    </div>
 
 </body>

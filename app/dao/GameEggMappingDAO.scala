@@ -55,6 +55,10 @@ class GameEggMappingDAO @Inject() (
     db.run(selectQuery.map(_.userId).update(Some(ownerId)))
   }
 
+  def isGameInitialized(gameId: Int): Future[Boolean] = {
+    db.run(gameEggMappingTable.filter(_.gameId === gameId).exists.result)
+  }
+
   private class GameEggMappingTable(tag: Tag)
       extends Table[GameEggMapping](tag, "GameEggMapping") {
     def gameEggMappingId = column[Int](

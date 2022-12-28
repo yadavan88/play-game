@@ -46,14 +46,11 @@ class HomeController @Inject() (
       .map(games => Ok(views.html.gameslist(games.toList)))
   }
 
-  def gamePlayPage(gameId: Int) = Action.async { _ =>
-    gameService.getGame(gameId).map {
-      case Some(game) => Ok(views.html.gameplay(game))
-      case None       => BadRequest(Html("<h3>Invalid Game Id passed!</h3>"))
+  def gamePlayPage(gameId: Int) = Action.async { implicit req =>
+    gameService.getGame(gameId).map { game =>
+      Ok(views.html.gameplay(game))
     }
   }
-
-  /** ------------------------- */
 
   def saveUser() = Action.async { implicit request: Request[AnyContent] =>
     val user: User = request.body.asJson.get.as[User]
@@ -91,11 +88,12 @@ class HomeController @Inject() (
     }
   }
 
-  def deleteGameProgress(gameId: Int) = Action.async {
-    implicit request: Request[AnyContent] =>
+  def deleteGameProgress(gameId: Int) = authenticated { user =>
+    Action.async { implicit request: Request[AnyContent] =>
       gameService
         .deleteGameProgress(gameId)
         .map(_ => Ok("Game progress cleared for game: " + gameId))
+    }
   }
 
   def generateScripts() = Action { implicit request: Request[AnyContent] =>
@@ -108,14 +106,15 @@ class HomeController @Inject() (
   ): EssentialAction = {
     EssentialAction { request =>
       val key = request.cookies.get(SESSION_KEY).map(_.value)
-      println("user check... " + key)
-
       val userOpt =
         UserSessionHandler.getUserFromSession(key)
       println(request.headers)
       userOpt match {
         case Some(user) => action(user)(request)
-        case None       => Accumulator.done(Forbidden("Invalid apiKey"))
+        case None =>
+          Accumulator.done(
+            Forbidden("Invalid apiKey, please re-login and try")
+          )
       }
     }
   }

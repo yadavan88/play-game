@@ -2,6 +2,7 @@ package models
 
 case class Credentials(username: String, password: String)
 case class Game(gameId: Int, name: String)
+case class GameInfo(game: Game, initialized: Boolean)
 case class User(
                  userId: Int,
                  username: String,

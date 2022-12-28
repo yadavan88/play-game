@@ -28,6 +28,7 @@ POST          /api/games                               controllers.HomeControlle
  #        type: string
  ###
 GET           /api/games/:gameId/initialize            controllers.HomeController.initializeGame(gameId:Int)
++nocsrf
 DELETE        /api/games/:gameId/deleteProgress        controllers.HomeController.deleteGameProgress(gameId:Int)
 +nocsrf
 POST          /api/validateLogin                       controllers.HomeController.validateLogin()

@@ -34,8 +34,13 @@ class GameService @Inject() (
     allGames <- getAllGames()
   } yield allGames.filterNot(gameIds.contains)
 
-  def getGame(gameId: Int): Future[Option[Game]] = {
-    getAllGames().map(_.find(_.gameId == gameId))
+  def getGame(gameId: Int): Future[GameInfo] = {
+    for {
+      games <- getAllGames()
+      game = games.find(_.gameId == gameId)
+      _ = require(game.isDefined, "Could not find a game with id: " + gameId)
+      status <- gameEggMappingDAO.isGameInitialized(gameId)
+    } yield GameInfo(game.get, status)
   }
 
   def initializeGame(gameId: Int): Future[Boolean] = {
@@ -63,6 +68,7 @@ class GameService @Inject() (
   }
 
   def deleteGameProgress(gameId: Int): Future[Int] = {
+    println("Clearing the progress for the game: " + gameId)
     gameEggMappingDAO.deleteGameProgress(gameId)
   }
 
