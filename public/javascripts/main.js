@@ -41,8 +41,7 @@ function toggle(pos, gameId) {
       });
       const res = await response; //extract JSON from the http response
         let el = document.getElementById("err_msg")
-
-
+        el.innerHTML = ""
       if(res.status === 200) {
           let value = await res.json()
           if(value.alreadyClaimed) {

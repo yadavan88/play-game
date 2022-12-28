@@ -153,7 +153,7 @@ class HomeController @Inject() (
       .bindFromRequest()
       .fold(
         er => {
-          Future.successful(BadRequest(views.html.loginform(er)))
+          Future.successful(Ok(views.html.loginform(er)))
         },
         u => {
           userDao.validateCredential(u).map { user =>
@@ -163,7 +163,9 @@ class HomeController @Inject() (
                 // .withHeaders(SESSION_KEY -> sessionKey)
                 .withCookies(Cookie(SESSION_KEY, sessionKey))
             } else {
-              Unauthorized(views.html.loginform(LoginForm.form))
+              // Invalid credentials
+              Redirect("/login")
+                .flashing("err" -> "Invalid Credentials")
             }
           }
         }

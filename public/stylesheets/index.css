@@ -14,3 +14,6 @@ body {
     margin: 0;
     background: #fafafa;
 }
+.error-message {
+    color: red;
+}

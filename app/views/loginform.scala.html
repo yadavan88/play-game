@@ -1,5 +1,5 @@
 @import helper._
-@(userForm: Form[Credentials])(implicit messages: Messages)
+@(userForm: Form[Credentials])(implicit messages: Messages, flash: Flash)
 
 <h1>Login Form</h1>
 @form(action = routes.HomeController.validateLogin()) {
@@ -7,17 +7,20 @@
   @inputPassword(userForm("password"))
 
   <input type="submit" value="Submit">
-
-}
-@if(userForm.hasGlobalErrors) {
-  <ul>
-  @for(error <- userForm.globalErrors) {
-    <li>@error.format</li>
+  <br/>
+  <br/>
+  <span class="error-message">@flash.get("err").getOrElse("")</span>
+  <br/>
+  @if(userForm.hasGlobalErrors) {
+    @for(error <- userForm.globalErrors) {
+      <span class="error-message">@error.format(messages)</span>
+    }
   }
-  </ul>
 }
+
 
 <br/>
 <br/>
 
 <a href="/user_create">Sign Up</a>
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/index.css")">
