@@ -10,9 +10,9 @@ Simple game written while exploring play framework
 
 # Usage
 - Compile and start this play application (use `sbt run` for example)
-- access `http://localhost:9000`. This will compile the play classes and templates
+- Make sure that docker is running with postgres container and required tables are created
+- access `http://localhost:9000`. This will compile the play classes and templates. 
 - Swagger API is available at `http://localhost:9000/assets/swagger.html`
-
 
 # Main concepts covered in this project
 - Play setup and configurations
