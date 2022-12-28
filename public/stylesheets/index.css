@@ -13,7 +13,37 @@ html {
 body {
     margin: 0;
     background: #fafafa;
+    padding-top: 10px;
 }
 .error-message {
+    padding: 20px;
     color: red;
+}
+
+
+dl {
+    width: 50%;
+    overflow: hidden;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    margin: 0
+}
+dt {
+    float: left;
+    width: 10%;
+    /* adjust the width; make sure the total of both is 100% */
+    padding: 0;
+    margin: 0
+}
+dd {
+    float: left;
+    width: 20%;
+    /* adjust the width; make sure the total of both is 100% */
+    padding: 0;
+    margin: 0
+}
+
+.formBasic {
+    padding: 5px;
+    padding-left: 10px;
 }

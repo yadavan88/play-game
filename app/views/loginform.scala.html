@@ -1,26 +1,26 @@
 @import helper._
 @(userForm: Form[Credentials])(implicit messages: Messages, flash: Flash)
-
-<h1>Login Form</h1>
-@form(action = routes.HomeController.validateLogin()) {
-  @inputText(userForm("username"))
-  @inputPassword(userForm("password"))
-
-  <input type="submit" value="Submit">
-  <br/>
-  <br/>
-  <span class="error-message">@flash.get("err").getOrElse("")</span>
-  <br/>
-  @if(userForm.hasGlobalErrors) {
-    @for(error <- userForm.globalErrors) {
-      <span class="error-message">@error.format(messages)</span>
+<body>
+    <h1>Login Form</h1>
+    <br/>
+    <span class="error-message">@flash.get("err").getOrElse("")</span>
+    <br/>
+    @if(userForm.hasGlobalErrors) {
+        @for(error <- userForm.globalErrors) {
+            <span class="error-message">@error.format(messages)</span>
+        }
     }
-  }
-}
+    <div>
+        <br/>
+        @form(action = routes.HomeController.validateLogin()) {
+            @inputText(userForm("username"), Symbol("size") -> 20)
+            @inputPassword(userForm("password"), Symbol("size") -> 20)
 
+            <div class="formBasic"><input type="submit" value="Login">
+            </div>
+        }
+    </div>
 
-<br/>
-<br/>
-
-<a href="/user_create">Sign Up</a>
-  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/index.css")">
+    <div class="formBasic"><a href="/user_create">Sign Up</a></div>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/index.css")">
+</body>
