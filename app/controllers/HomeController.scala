@@ -7,7 +7,7 @@ import dao._
 import dao.JsonImplicits._
 import models._
 import play.api.data.Form
-import play.api.data.Forms.{mapping, text}
+import play.api.data.Forms.{boolean, mapping, nonEmptyText, number, text}
 import play.api.libs.json.Json
 import play.api.libs.streams.Accumulator
 import play.twirl.api.Html
@@ -141,19 +141,32 @@ class HomeController @Inject() (
     Ok(views.html.loginform(LoginForm.form))
   }
 
+  def createUserForm() = Action { implicit request =>
+    Ok(views.html.createuser(UserForm.form))
+  }
+
   def validateLogin() = Action.async { implicit request =>
     println("before trying to login....")
-    val cred = LoginForm.form.bindFromRequest().get
-    // val cred = request.body.asJson.get.as[Credentials]
-    userDao.validateCredential(cred).map { user =>
-      if (user.isDefined) {
-        val sessionKey = UserSessionHandler.createSession(user.get)
-        Ok(views.html.afterlogin(user.get))
-          .withHeaders(SESSION_KEY -> sessionKey)
-      } else {
-        Unauthorized("Invalid credentials!")
-      }
-    }
+    LoginForm.form
+      .bindFromRequest()
+      .fold(
+        er => {
+          Future.successful(BadRequest(views.html.loginform(er)))
+        },
+        u => {
+          userDao.validateCredential(u).map { user =>
+            if (user.isDefined) {
+              val sessionKey = UserSessionHandler.createSession(user.get)
+              Ok(views.html.afterlogin(user.get))
+                .withHeaders(SESSION_KEY -> sessionKey)
+            } else {
+              Unauthorized("Invalid credentials!")
+            }
+          }
+        }
+      )
+  // val cred = request.body.asJson.get.as[Credentials]
+
   }
 
   def findEgg() = {
@@ -163,12 +176,3 @@ class HomeController @Inject() (
   }
 }
 //https://pedrorijo.com/blog/scala-play-auth/
-
-object LoginForm {
-  val form = Form(
-    mapping(
-      "username" -> text,
-      "password" -> text
-    )(Credentials.apply)(Credentials.unapply)
-  )
-}

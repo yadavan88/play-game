@@ -6,14 +6,22 @@
   <link rel="stylesheet" href="/assets/stylesheets/main.css">
 </head>
 <body>
-<button id = "gen" onclick="generateGrid(@game.gameId);return false">Generate Grid</button>
+  <button id = "init_game" onclick="initGame(@game.gameId);return false">Initialize Game</button>
+  <br/>
+  <br/>
+  <button id = "gen" onclick="generateGrid(@game.gameId);return false">Start Game</button>
+
+  <br/>
+  <br/>
+  <br/>
+<div>
+  <label id="err_msg"></label>
+</div>
+  <br/>
 
 <div class="container">
   <div class="cards" id="card_holder">
   </div>
 </div>
 
-<div>
-  <p id="info"></p>
-</div>
 </body>

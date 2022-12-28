@@ -1,0 +1,19 @@
+@import helper._
+@(userForm: Form[Credentials])(implicit messages: Messages)
+
+<h1>Login Form</h1>
+@form(action = routes.HomeController.validateLogin()) {
+  @inputText(userForm("username"))
+  @inputPassword(userForm("password"))
+
+  <input type="submit" value="Submit">
+
+}
+
+@if(userForm.hasGlobalErrors) {
+  <ul>
+  @for(error <- userForm.globalErrors) {
+    <li>@error.format</li>
+  }
+  </ul>
+}

@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS public."GameEggMapping"
 CREATE TABLE IF NOT EXISTS public."User"
 (
     "userId" serial PRIMARY KEY,
-    username character varying,
-    password character varying,
+    username character varying NOT NULL,
+    password character varying NOT NULL,
     active boolean NOT NULL
 );
 
@@ -27,4 +27,4 @@ VALUES (1,'Find the Egg');
 
 INSERT INTO public."User"(
     "userId", username, password, active)
-VALUES (1, 'admin', 'password123', true);
+VALUES (999, 'admin', 'password123', true);
