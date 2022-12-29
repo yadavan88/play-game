@@ -14,6 +14,11 @@ Simple game written while exploring play framework
 - access `http://localhost:9000`. This will compile the play classes and templates. 
 - Swagger API is available at `http://localhost:9000/assets/swagger.html`
 
+# Running as executable
+- Use `sbt stage`. This will create the executable bundle 
+- Navigate to `target/universal/stage/bin`
+- Execute the `play-game` executable file
+
 # Main concepts covered in this project
 - Play setup and configurations
 - Routes, URL params 
