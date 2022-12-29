@@ -147,7 +147,6 @@ class HomeController @Inject() (
   }
 
   def validateLogin() = Action.async { implicit request =>
-    println("before trying to login....")
     LoginForm.form
       .bindFromRequest()
       .fold(

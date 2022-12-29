@@ -7,9 +7,7 @@ import scala.collection.mutable.Map
 object UserSessionHandler {
 
   // hardcoded this just for testing, need to remove this later
-  val session: Map[String, User] = Map(
-    "uuid" -> User(1, "admin", "password123", true)
-  ) // Map.empty
+  val session: Map[String, User] = Map.empty
 
   def createSession(user: User): String = {
     val sessionId = UUID.randomUUID().toString

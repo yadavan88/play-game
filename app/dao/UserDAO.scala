@@ -2,6 +2,7 @@ package dao
 
 import models.Exceptions.DuplicateUsernameException
 import models.{Credentials, User}
+import play.api.cache.AsyncCacheApi
 
 import javax.inject.Inject
 import slick.basic.DatabaseConfig
@@ -15,7 +16,8 @@ import scala.concurrent.Future
 import play.api.libs.json._
 
 class UserDAO @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
+    protected val dbConfigProvider: DatabaseConfigProvider,
+    cache: AsyncCacheApi
 )(implicit
     executionContext: ExecutionContext
 ) extends HasDatabaseConfigProvider[JdbcProfile] {
@@ -40,10 +42,20 @@ class UserDAO @Inject() (
 
   }
 
+  private def getUsersInternal: Future[Seq[User]] = {
+    db.run(userTable.result).map { users: Seq[User] =>
+      // Setting the rows to cache when accessed for the first time
+      cache.set("users", users)
+      users
+    }
+  }
   def getUsers(all: Boolean): Future[Seq[User]] = {
-    val query =
-      if (all) userTable.result else userTable.filter(_.active === true).result
-    db.run(query)
+    cache.getOrElseUpdate("users") {
+      getUsersInternal.map { users =>
+        if (all) users else users.filter(_.active == true)
+      }
+    }
+
   }
 
   def getUser(userId: Int): Future[Option[User]] = {
