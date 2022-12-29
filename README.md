@@ -22,4 +22,5 @@ Simple game written while exploring play framework
 - Dependency Injection
 - Play Slick Integration
 - Twirl template Usage
+- Play Caching API with Caffeine
 - Swagger Documentation
