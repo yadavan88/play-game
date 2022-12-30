@@ -34,12 +34,17 @@ class GameEggMappingDAO @Inject() (
     db.run(gameEggMappingTable ++= rows)
   }
 
-  def upvote(mappingId: Int): Future[Boolean] = {
+  def upvote(gameId: Int, pos: Int): Future[Boolean] = {
     val selectionQuery =
-      gameEggMappingTable.filter(_.gameEggMappingId === mappingId)
+      gameEggMappingTable.filter(e =>
+        e.gameId === gameId && e.eggPosition === pos
+      )
     for {
       row <- db.run(selectionQuery.result.headOption)
-      _ = require(row.isDefined, "Invalid MappingId is passed")
+      _ = require(
+        row.isDefined,
+        "Could not find the mapping row with the details provided"
+      )
       _ <- db.run(selectionQuery.map(_.upvotes).update(row.get.upvotes + 1))
     } yield true
   }
@@ -53,6 +58,21 @@ class GameEggMappingDAO @Inject() (
       q.gameId === gameId && q.eggPosition === pos
     )
     db.run(selectQuery.map(_.userId).update(Some(ownerId)))
+  }
+
+  def writeMessage(gameId: Int, pos: Int, newMsg: String) = {
+    val selectionQuery =
+      gameEggMappingTable.filter(e =>
+        e.gameId === gameId && e.eggPosition === pos
+      )
+    for {
+      row <- db.run(selectionQuery.result.headOption)
+      _ = require(
+        row.isDefined,
+        "Could not find the mapping row with the details provided"
+      )
+      _ <- db.run(selectionQuery.map(_.message).update(Some(newMsg)))
+    } yield true
   }
 
   def isGameInitialized(gameId: Int): Future[Boolean] = {

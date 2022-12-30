@@ -79,7 +79,9 @@ class GameService @Inject() (
       user <- userDAO.getUser(userId)
       response <-
         if (position.isEmpty) {
-          Future.failed(new Exception("Invalid Position, bad luck"))
+          Future.failed(
+            new Exception("There is no egg here, better luck next time!")
+          )
         } else if (position.flatMap(_.userId).isDefined) {
           // Already owned by a user
           Future.successful(
@@ -98,8 +100,12 @@ class GameService @Inject() (
     } yield response
   }
 
-  def upvote(mappingId: Int): Future[Boolean] = {
-    gameEggMappingDAO.upvote(mappingId)
+  def upvote(gameId: Int, pos: Int): Future[Boolean] = {
+    gameEggMappingDAO.upvote(gameId, pos)
+  }
+
+  def writeMessage(gameId: Int, pos: Int, msg: String): Future[Boolean] = {
+    gameEggMappingDAO.writeMessage(gameId, pos, msg)
   }
 
 }

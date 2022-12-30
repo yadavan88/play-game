@@ -27,6 +27,7 @@ final case class RevealResponse(
                                )
 
 
+final case class SecretMessage(msg: String)
 object Exceptions {
   final case class DuplicateUsernameException(message: String) extends Exception
 }

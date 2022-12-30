@@ -108,7 +108,6 @@ class HomeController @Inject() (
       val key = request.cookies.get(SESSION_KEY).map(_.value)
       val userOpt =
         UserSessionHandler.getUserFromSession(key)
-      println(request.headers)
       userOpt match {
         case Some(user) => action(user)(request)
         case None =>
@@ -119,10 +118,20 @@ class HomeController @Inject() (
     }
   }
 
-  def upvote(mappingId: Int) =
+  def upvote(gameId: Int, pos: Int) =
     authenticated { user =>
       Action.async { implicit request =>
-        gameService.upvote(mappingId).map(_ => Ok("Upvoted successfully"))
+        gameService.upvote(gameId, pos).map(_ => Ok("Upvoted successfully"))
+      }
+    }
+
+  def writeMessage(gameId: Int, pos: Int) =
+    authenticated { user =>
+      Action.async { implicit request =>
+        val msg = request.body.asJson.get.as[SecretMessage]
+        gameService
+          .writeMessage(gameId, pos, msg.msg)
+          .map(_ => Ok("Upvoted successfully"))
       }
     }
 
@@ -132,6 +141,7 @@ class HomeController @Inject() (
         gameService
           .reveal(gameId, pos, user.userId)
           .map(res => Ok(Json.toJson(res)))
+          .recover(res => InternalServerError(res.getMessage))
       }
     }
   }

@@ -32,7 +32,10 @@ GET           /api/games/:gameId/initialize            controllers.HomeControlle
 DELETE        /api/games/:gameId/deleteProgress        controllers.HomeController.deleteGameProgress(gameId:Int)
 +nocsrf
 POST          /api/validateLogin                       controllers.HomeController.validateLogin()
-POST          /api/upvote/:mappingId                   controllers.HomeController.upvote(mappingId: Int)
++nocsrf
+POST          /api/games/msg/:gameId/:pos               controllers.HomeController.writeMessage(gameId: Int, pos:Int)
++nocsrf
+POST          /api/upvote/:gameId/:pos                 controllers.HomeController.upvote(gameId: Int, pos:Int)
 +nocsrf
 POST          /api/games/:gameId/reveal/:pos           controllers.HomeController.reveal(gameId:Int, pos:Int)
 GET           /login                                   controllers.HomeController.loginForm()

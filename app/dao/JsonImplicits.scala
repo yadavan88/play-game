@@ -10,4 +10,5 @@ object JsonImplicits {
   implicit val mappingFormat = Json.format[GameEggMapping]
   implicit val credentialFormat = Json.format[Credentials]
   implicit val revealResponseFormat = Json.format[RevealResponse]
+  implicit val secretMessageFormat = Json.format[SecretMessage]
 }
