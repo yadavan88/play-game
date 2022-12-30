@@ -62,6 +62,7 @@ class UserDAO @Inject() (
     getUsers(true).map(_.find(_.userId == userId))
   }
 
+  // Not considering any hashing of password for easy impl. Not to be done this way in any prod applications
   def validateCredential(credential: Credentials): Future[Option[User]] = {
     val query = userTable.filter { u =>
       u.name === credential.username && u.pwd === credential.password
