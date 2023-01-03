@@ -18,13 +18,10 @@ CREATE TABLE IF NOT EXISTS public."User"
     "userId" serial PRIMARY KEY,
     username character varying NOT NULL,
     password character varying NOT NULL,
+    salt character varying,
     active boolean NOT NULL
 );
 
 INSERT INTO public."Game"(
     "gameId", name)
 VALUES (1,'Find the Egg');
-
-INSERT INTO public."User"(
-    "userId", username, password, active)
-VALUES (999, 'admin', 'password123', true);

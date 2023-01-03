@@ -5,7 +5,7 @@ import play.api._
 import play.api.mvc._
 import dao._
 import dao.JsonImplicits._
-import models.Exceptions.DuplicateUsernameException
+import models.Exceptions.{DuplicateUsernameException, NoEggException}
 import models._
 import play.api.data.Form
 import play.api.data.Forms.{boolean, mapping, nonEmptyText, number, text}
@@ -141,7 +141,10 @@ class HomeController @Inject() (
         gameService
           .reveal(gameId, pos, user.userId)
           .map(res => Ok(Json.toJson(res)))
-          .recover(res => InternalServerError(res.getMessage))
+          .recover {
+            case noEgg: NoEggException => NotFound(noEgg.msg)
+            case ex: Exception         => InternalServerError(ex.getMessage)
+          }
       }
     }
   }
@@ -164,18 +167,18 @@ class HomeController @Inject() (
           Future.successful(Ok(views.html.loginform(er)))
         },
         u => {
-          userDao.validateCredential(u).map { user =>
-            if (user.isDefined) {
-              val sessionKey = UserSessionHandler.createSession(user.get)
+          userDao
+            .validateCredential(u)
+            .map { user =>
+              val sessionKey = UserSessionHandler.createSession(user)
               Ok(views.html.index())
                 // .withHeaders(SESSION_KEY -> sessionKey)
                 .withCookies(Cookie(SESSION_KEY, sessionKey))
-            } else {
-              // Invalid credentials
+            }
+            .recover { case ex =>
               Redirect("/login")
                 .flashing("err" -> "Invalid Credentials")
             }
-          }
         }
       )
   }

@@ -2,6 +2,7 @@ package services
 
 import javax.inject.Inject
 import dao.{GameDAO, GameEggMappingDAO, UserDAO}
+import models.Exceptions.NoEggException
 import models._
 import models.{Game, GameEggMapping, User}
 
@@ -80,7 +81,7 @@ class GameService @Inject() (
       response <-
         if (position.isEmpty) {
           Future.failed(
-            new Exception("There is no egg here, better luck next time!")
+            NoEggException("There is no egg here, better luck next time!")
           )
         } else if (position.flatMap(_.userId).isDefined) {
           // Already owned by a user

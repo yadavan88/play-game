@@ -15,6 +15,12 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.Future
 import play.api.libs.json._
 
+import java.nio.charset.StandardCharsets
+import java.security.SecureRandom
+import java.util.Base64
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
+
 class UserDAO @Inject() (
     protected val dbConfigProvider: DatabaseConfigProvider,
     cache: AsyncCacheApi
@@ -36,7 +42,12 @@ class UserDAO @Inject() (
             )
           )
         } else {
-          db.run(userTable += user).map(_ => true)
+          val salt = generateSalt()
+          println("salt = " + salt)
+          val hashedPwd = hashPassword(user.password, salt)
+          val updatedUser =
+            user.copy(password = hashedPwd, salt = Some(salt))
+          db.run(userTable += updatedUser).map(_ => true)
         }
     } yield res
 
@@ -63,11 +74,39 @@ class UserDAO @Inject() (
   }
 
   // Not considering any hashing of password for easy impl. Not to be done this way in any prod applications
-  def validateCredential(credential: Credentials): Future[Option[User]] = {
+  def validateCredential(credential: Credentials): Future[User] = {
     val query = userTable.filter { u =>
-      u.name === credential.username && u.pwd === credential.password
+      u.name === credential.username
     }
-    db.run(query.result.headOption)
+    for {
+      user <- db.run(query.result.headOption)
+      _ = if (user.isEmpty) {
+        throw new Exception("Invalid username")
+      }
+      hashedPwd = hashPassword(
+        credential.password,
+        user.flatMap(_.salt).get
+      )
+      _ = if (hashedPwd != user.get.password) {
+        throw new Exception("Invalid Credentials")
+      }
+    } yield user.get
+
+  }
+
+  private def generateSalt(): String = {
+    val random = new SecureRandom()
+    val saltBytes = new Array[Byte](16)
+    random.nextBytes(saltBytes)
+    Base64.getEncoder.encodeToString(saltBytes)
+  }
+
+  def hashPassword(password: String, salt: String): String = {
+    val saltBytes = Base64.getDecoder.decode(salt)
+    val spec = new PBEKeySpec(password.toCharArray(), saltBytes, 65536, 128)
+    val secretFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+    val hashBytes = secretFactory.generateSecret(spec).getEncoded()
+    Base64.getEncoder.encodeToString(hashBytes)
   }
 
   private class UserTable(tag: Tag) extends Table[User](tag, "User") {
@@ -75,8 +114,9 @@ class UserDAO @Inject() (
       column[Int]("userId", O.PrimaryKey, O.AutoInc, O.SqlType("SERIAL"))
     def name = column[String]("username")
     def pwd = column[String]("password")
+    def salt = column[Option[String]]("salt")
     def active = column[Boolean]("active")
-    def * = (userId, name, pwd, active) <> (User.tupled, User.unapply)
+    def * = (userId, name, pwd, salt, active) <> (User.tupled, User.unapply)
   }
 
   def scripts = userTable.schema.createIfNotExistsStatements

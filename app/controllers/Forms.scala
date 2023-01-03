@@ -24,6 +24,7 @@ object UserForm {
       "userId" -> number,
       "username" -> nonEmptyText(minLength = 5),
       "password" -> nonEmptyText(minLength = 5),
+      "salt" -> ignored(Option.empty[String]),
       "active" -> boolean
     )(User.apply)(User.unapply)
   )

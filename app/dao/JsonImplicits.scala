@@ -1,10 +1,19 @@
 package dao
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Writes}
 import models._
 
 object JsonImplicits {
-  implicit val userFormat = Json.format[User]
+  implicit val userReadFormat = Json.reads[User]
+  implicit val userWriteFormat: Writes[User] = Writes { user =>
+    Json.obj(
+      "userId" -> user.userId,
+      "username" -> user.username,
+      "password" -> "*****",
+      "salt" -> "******",
+      "active" -> user.active
+    )
+  }
   implicit val gameFormat = Json.format[Game]
   implicit val gameInfoFormat = Json.format[GameInfo]
   implicit val mappingFormat = Json.format[GameEggMapping]
